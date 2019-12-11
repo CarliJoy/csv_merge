@@ -12,3 +12,5 @@ Missmatches in headers will be logged.
 
 Usage:
 `./csv_combine target.csv source1.csv othersources/*.csv`
+
+
