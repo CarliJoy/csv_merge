@@ -13,4 +13,5 @@ Missmatches in headers will be logged.
 Usage:
 `./csv_combine target.csv source1.csv othersources/*.csv`
 
-
+It is possible to add a verbose parameter as well as --fix-header-lines parameter.
+The --fix-header-lines will force the number of header lines instead of determine it with the first two files.
