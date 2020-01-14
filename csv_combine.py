@@ -183,7 +183,7 @@ if __name__ == "__main__":
         description="Combine different csv files but keep the header\n"
         "\n"
         "The header will be determined automatically be comparing the number"
-        "of identical lines of the first two files."
+        "of identical lines of the first two files. "
         "Mismatches of headers will be logged."
     )
     parser.add_argument(

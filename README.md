@@ -4,11 +4,13 @@ Script to combine multiple files matching glob in a folder to one single big fil
 The common head will be determined automatically based on the number of identical lines of 
 the first two files.
 
+Latest version is available in [GitHub](https://github.com/CarliJoy/csv_merge).
+
 The default script uses binary mode to write files - so no encoding problems should occur.
 
 The header will be always taken from the first file.
 
-Missmatches in headers will be logged.
+Mismatches in headers will be logged.
 
 Usage:
 `./csv_combine target.csv source1.csv othersources/*.csv`
@@ -23,7 +25,7 @@ usage: csv_combine.py [-h] [-n FIX_HEADER_LINES] [-v]
 
 Combine different csv files but keep the header The header will be determined
 automatically be comparing the numberof identical lines of the first two
-files.Mismatches of headers will be logged.
+files. Mismatches of headers will be logged.
 
 positional arguments:
   target_file           Path to combination file

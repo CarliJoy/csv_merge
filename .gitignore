@@ -1,2 +1,4 @@
  venv/
  priv_examples/
+ .idea
+.idea/*
