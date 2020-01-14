@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-from glob import glob
-from typing import List, IO, Union, NewType, Optional, Callable
 import logging
+from glob import glob
 from textwrap import indent
-
+from typing import List, IO, Union, Optional, Callable
 
 logger = logging.getLogger("csv_combine")
 
@@ -43,14 +42,20 @@ class ReaderError(ValueError):
 
 
 class Reader:
-    CHUNK_SIZE: int = 1024  # for binary read - how big should be the chunk size of each read attempt
+    # for binary read - how big should be the chunk size of each read attempt
+    CHUNK_SIZE: int = 1024
     encoding: str
 
-    def __init__(self, encoding="bytes", status_update_function: Optional[Callable[[int, int], None]] = None):
+    def __init__(
+        self,
+        encoding="bytes",
+        status_update_function: Optional[Callable[[int, int], None]] = None,
+    ):
         """
         :param encoding: Encoding name or bytes for binary mode
-        :param status_update_function: if given it is called on every finished run reading a file with
-                                       parameters (current_file_number, max_file_number)
+        :param status_update_function: if given it is called on every finished run reading
+                                       a file with parameters
+                                       (current_file_number, max_file_number)
         """
         self.encoding = encoding
         self.status_func = status_update_function
@@ -85,11 +90,15 @@ class Reader:
                 header.append(line1)
         return header
 
-    def combine(self, globbing: str, outfile: str, force_header_line_number: Optional[int] = None):
+    def combine(
+        self, globbing: str, outfile: str, force_header_line_number: Optional[int] = None
+    ):
         line_count = 0
         files = get_files(globbing)
         if outfile in files:
-            raise ReaderError("You are trying to write into on of the source files. This is not supported!")
+            raise ReaderError(
+                "You are trying to write into on of the source files. This is not supported!"
+            )
         if len(files) < 2:
             raise ReaderError("You need to combine at least two files!")
 
@@ -99,17 +108,23 @@ class Reader:
         if force_header_line_number is None:
             headers.append(self.get_header(files[0], files[1]))
             header_files.append([files[0], files[1]])
-            logger.info(f"Got header comparing matching start lines of '{files[0]}' and '{files[1]}'. "
-                        f"Header is {len(headers[0])} lines long.")
+            logger.info(
+                f"Got header comparing matching start lines of '{files[0]}' and '{files[1]}'. "
+                f"Header is {len(headers[0])} lines long."
+            )
         else:
             headers.append(self.get_header_by_lines(files[0], force_header_line_number))
             header_files.append([files[0]])
-            logger.info(f"Read {force_header_line_number} lines of header from '{files[0]}'.")
+            logger.info(
+                f"Read {force_header_line_number} lines of header from '{files[0]}'."
+            )
         header_length = len(headers[0])  # define how many lines long is the header
 
         # Give the user some hints what is happening - nicely formatted
-        header_representation = indent("\n".join(repr(line) for line in headers[0]), ' '*4)
-        logger.debug(f'Header is:\n{header_representation}')
+        header_representation = indent(
+            "\n".join(repr(line) for line in headers[0]), " " * 4
+        )
+        logger.debug(f"Header is:\n{header_representation}")
 
         with self.open(outfile, True) as out_file:
             for line in headers[0]:
@@ -120,10 +135,15 @@ class Reader:
                     current_header = []
                     for line_number in range(header_length):
                         current_header.append(in_file.readline())
-                    current_compare_header = "\n".join([repr(line) for line in current_header])
+                    current_compare_header = "\n".join(
+                        [repr(line) for line in current_header]
+                    )
                     for number, defined_header in enumerate(headers):
                         # Try to find head in already
-                        if "\n".join([repr(line) for line in defined_header]) == current_compare_header:
+                        if (
+                            "\n".join([repr(line) for line in defined_header])
+                            == current_compare_header
+                        ):
                             header_files[number].append(file)
                             break
                     else:
@@ -133,39 +153,66 @@ class Reader:
                         line_count += 1
                         out_file.write(line)
                 if self.status_func is not None:
-                    self.status_func(file_count+1, len(files))
+                    self.status_func(file_count + 1, len(files))
         logger.info(f"Combined {file_count+1} files with a total of {line_count} lines.")
 
         if len(headers) > 1:
-            logger.warning(f"Not all file had the same headers. In total {len(headers)} different headers were "
-                           f"found in {file_count} files.")
+            logger.warning(
+                f"Not all file had the same headers. In total {len(headers)} different headers were "
+                f"found in {file_count} files."
+            )
             logger.info("These headers are:")
             for number, header in enumerate(headers):
-                header_representation = indent("\n".join(repr(line) for line in header), ' ' * 4)
-                logger.info(f"Header {number+1} for {len(header_files[number])} files: \n{header_representation}")
+                header_representation = indent(
+                    "\n".join(repr(line) for line in header), " " * 4
+                )
+                logger.info(
+                    f"Header {number+1} for {len(header_files[number])} files: \n{header_representation}"
+                )
                 file_list = "\n * ".join(sorted(header_files[number]))
-                logger.debug(f'Header {number+1} has was found in the following files: \n * {file_list}')
+                logger.debug(
+                    f"Header {number+1} has was found in the following files: \n * {file_list}"
+                )
 
 
 if __name__ == "__main__":
     # Show Info on console
     import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-n", "--fix-header-lines", type=int, default=None,
-                        help="If given the number of lines will not be determined by comparing the first two files," \
-                             "but will be set the fixed amount given")
-    parser.add_argument("-v", "--verbose", help="increase output verbosity",
-                        action="store_true")
+
+    parser = argparse.ArgumentParser(
+        description="Combine different csv files but keep the header\n"
+        "\n"
+        "The header will be determined automatically be comparing the number"
+        "of identical lines of the first two files."
+        "Mismatches of headers will be logged."
+    )
+    parser.add_argument(
+        "-n",
+        "--fix-header-lines",
+        type=int,
+        default=None,
+        help="Set the number of of head lines instead of determining it by comparing"
+        "the first two files.",
+    )
+    parser.add_argument(
+        "-v", "--verbose", help="increase output verbosity", action="store_true"
+    )
     parser.add_argument("target_file", help="Path to combination file")
-    parser.add_argument("source", nargs='*', help="Source files - unix globbing supported (= * and ? allowed)")
+    parser.add_argument(
+        "source",
+        nargs="*",
+        help="Source files - unix globbing supported (= * and ? allowed)",
+    )
     args = parser.parse_args()
     if args.verbose:
-        logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
+        logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
     else:
-        logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+        logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 
     reader = Reader(status_update_function=print_status)
     try:
-        reader.combine(args.source, args.target_file, force_header_line_number=args.fix_header_lines)
+        reader.combine(
+            args.source, args.target_file, force_header_line_number=args.fix_header_lines
+        )
     except ReaderError as e:
         logger.exception(f"Could not combine files: {e}")

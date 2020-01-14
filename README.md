@@ -15,3 +15,28 @@ Usage:
 
 It is possible to add a verbose parameter as well as --fix-header-lines parameter.
 The --fix-header-lines will force the number of header lines instead of determine it with the first two files.
+
+```
+$ python csv_combine.py --help
+usage: csv_combine.py [-h] [-n FIX_HEADER_LINES] [-v]
+                      target_file [source [source ...]]
+
+Combine different csv files but keep the header The header will be determined
+automatically be comparing the numberof identical lines of the first two
+files.Mismatches of headers will be logged.
+
+positional arguments:
+  target_file           Path to combination file
+  source                Source files - unix globbing supported (= * and ?
+                        allowed)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -n FIX_HEADER_LINES, --fix-header-lines FIX_HEADER_LINES
+                        Set the number of of head lines instead of determining
+                        it by comparingthe first two files.
+  -v, --verbose         increase output verbosity
+
+
+```
+
